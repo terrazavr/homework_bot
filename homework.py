@@ -10,7 +10,11 @@ import telegram
 
 from dotenv import load_dotenv
 
-from exceptions import StatusError
+from exceptions import (
+    StatusError,
+    APIErrorException,
+    OKStatusError,
+)
 
 load_dotenv()
 
@@ -52,8 +56,7 @@ def check_tokens():
     Они нужны для работы бота,
     если отсутствует хоть одна - бот не должен работать.
     """
-    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
-        return True
+    return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
 def send_message(bot, message):
@@ -64,7 +67,7 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.debug(f'В {TELEGRAM_CHAT_ID} отправленно - {message}')
-    except Exception as error:
+    except telegram.error.TelegramError as error:
         logger.error(f'Ошибка отправки сообщения - {error}')
 
 
@@ -84,9 +87,9 @@ def get_api_answer(current_timestamp):
     except requests.RequestException:
         logger.error(f'Сбой в работе программы: '
                      f'Эндпоинт {ENDPOINT} недоступен.')
-        raise Exception('Ошибка запроса к API: {error}.')
+        raise APIErrorException('Ошибка запроса к API: {error}.')
     if homework_statuses.status_code != HTTPStatus.OK:
-        raise Exception(f'Ошибка {homework_statuses.status_code}')
+        raise OKStatusError(f'Ошибка {homework_statuses.status_code}')
     return homework_statuses.json()
 
 
@@ -131,7 +134,7 @@ def main():
     timestamp = int(time.time())
     message = 'Привет, бот активирован'
     send_message(bot, message)
-    error_text = ''
+    # error_text = ''
     while True:
         try:
             response = get_api_answer(timestamp)
@@ -145,9 +148,7 @@ def main():
                              f'обновлен - {new_message}')
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            if message != error_text:
-                logging.exception(message)
-                send_message(bot, message)
+            logging.exception(message)
         finally:
             time.sleep(RETRY_PERIOD)
 
