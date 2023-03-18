@@ -14,6 +14,7 @@ from exceptions import (
     StatusError,
     APIErrorException,
     OKStatusError,
+    TelegramError
 )
 
 load_dotenv()
@@ -69,6 +70,7 @@ def send_message(bot, message):
         logger.debug(f'В {TELEGRAM_CHAT_ID} отправленно - {message}')
     except telegram.error.TelegramError as error:
         logger.error(f'Ошибка отправки сообщения - {error}')
+        raise TelegramError(f'Ошибка отправки  в телеграм сообщения: {error}')
 
 
 def get_api_answer(current_timestamp):
@@ -134,7 +136,6 @@ def main():
     timestamp = int(time.time())
     message = 'Привет, бот активирован'
     send_message(bot, message)
-    # error_text = ''
     while True:
         try:
             response = get_api_answer(timestamp)

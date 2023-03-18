@@ -14,3 +14,9 @@ class OKStatusError(Exception):
     """Ошибка статуса 200."""
 
     pass
+
+
+class TelegramError(Exception):
+    """Ошибка отправки сообщения в Телеграмм."""
+
+    pass
