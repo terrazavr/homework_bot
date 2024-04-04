@@ -24,7 +24,7 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_PERIOD = 600
+RETRY_PERIOD = 300
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -111,7 +111,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Получает информацию о конкретной домашкеслучае.
+    """Получает информацию о конкретной домашке.
     В случае успеха возвращает строку с одним из вердиктов.
     """
     homework_name = homework.get('homework_name')
@@ -134,7 +134,7 @@ def main():
         exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     timestamp = int(time.time())
-    message = 'Привет, бот активирован'
+    message = 'Привет, я работаю!'
     send_message(bot, message)
     while True:
         try:
